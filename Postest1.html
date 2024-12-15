@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Data Inventaris</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2>Data Inventaris</h2>
+
+        <form id="inventoryForm" class="mb-4">
+            <div class="form-group">
+                <label for="id">ID Barang:</label>
+                <input type="text" class="form-control" id="id" required>
+            </div>
+            <div class="form-group">
+                <label for="nama">Nama Barang:</label>
+                <input type="text" class="form-control" id="nama" required>
+            </div>
+            <div class="form-group">
+                <label for="kategori">Kategori:</label>
+                <input type="text" class="form-control" id="kategori" required>
+            </div>
+            <div class="form-group">
+                <label for="stok">Stok:</label>
+                <input type="number" class="form-control" id="stok" required>
+            </div>
+            <div class="form-group">
+                <label for="harga">Harga:</label>
+                <input type="number" class="form-control" id="harga" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID Barang</th>
+                    <th>Nama Barang</th>
+                    <th>Kategori</th>
+                    <th>Stok</th>
+                    <th>Harga</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTableBody">
+                <!-- Data will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const script_url = "https://script.google.com/macros/s/AKfycbwHHdyMB5KlIDa40uJp0MowA0ZlBB8-aqN-t0e-RhbkKuuAjPq4AusClUCQGeF7BDdQ/exec";
+
+        $(document).ready(function () {
+            loadData();
+
+            $('#inventoryForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const id = $('#id').val();
+                const nama = $('#nama').val();
+                const kategori = $('#kategori').val();
+                const stok = $('#stok').val();
+                const harga = $('#harga').val();
+
+                $.get(script_url, {
+                    action: "insert",
+                    id: id,
+                    nama: nama,
+                    kategori: kategori,
+                    stok: stok,
+                    harga: harga
+                }, function () {
+                    alert("Data saved!");
+                    loadData();
+                });
+            });
+        });
+
+        function loadData() {
+            $.get(script_url, { action: "read" }, function (data) {
+                const tableBody = $('#inventoryTableBody');
+                tableBody.empty();
+
+                data.forEach(item => {
+                    tableBody.append(`
+                        <tr>
+                            <td>${item['ID Barang']}</td>
+                            <td>${item['Nama Barang']}</td>
+                            <td>${item['Kategori']}</td>
+                            <td>${item['Stok']}</td>
+                            <td>${item['Harga']}</td>
+                            <td>
+                                <button onclick="deleteData('${item['ID Barang']}')" class="btn btn-danger btn-sm">Delete</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+
+        function deleteData(id) {
+            $.get(script_url, { action: "delete", id: id }, function () {
+                alert("Data deleted!");
+                loadData();
+            });
+        }
+    </script>
+</body>
+
+</html>

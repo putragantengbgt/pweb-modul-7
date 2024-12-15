@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD Lowongan Kerja</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<div class="container mt-5">
+  <h2>Lowongan Kerja</h2>
+
+  <form id="formLowongan" class="mb-4">
+    <input type="hidden" id="kodeHidden">
+    <div class="form-group">
+      <label for="kode">Kode</label>
+      <input type="text" class="form-control" id="kode" required>
+    </div>
+    <div class="form-group">
+      <label for="posisi">Posisi</label>
+      <input type="text" class="form-control" id="posisi" required>
+    </div>
+    <div class="form-group">
+      <label for="perusahaan">Perusahaan</label>
+      <input type="text" class="form-control" id="perusahaan" required>
+    </div>
+    <div class="form-group">
+      <label for="lokasi">Lokasi</label>
+      <input type="text" class="form-control" id="lokasi" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Simpan</button>
+  </form>
+
+  <input type="text" id="searchQuery" placeholder="Cari lowongan kerja yuu..." class="form-control mb-3">
+  <button class="btn btn-secondary" onclick="searchData()">Cari</button>
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Kode</th>
+        <th>Posisi</th>
+        <th>Perusahaan</th>
+        <th>Lokasi</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="tabelLowongan">
+      <!-- data akan diisi di sini -->
+    </tbody>
+  </table>
+</div>
+
+<script>
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbzsZHBrHSLLgQBUFqZEmJqT2okSIB1aSt45K4wvxhWyq6I7QrQecNrjclok50T82wgpRA/exec';
+
+  function loadLowongan() {
+    $.get(scriptURL + '?action=read', function(data) {
+      const tableBody = $('#tabelLowongan');
+      tableBody.empty();
+      data.forEach(item => {
+        tableBody.append(`
+          <tr>
+            <td>${item.Kode}</td>
+            <td>${item.Posisi}</td>
+            <td>${item.Perusahaan}</td>
+            <td>${item.Lokasi}</td>
+            <td>
+              <button class="btn btn-danger btn-sm" onclick="deleteData('${item.Kode}')">Hapus</button>
+            </td>
+          </tr>
+        `);
+      });
+    }, 'json');
+  }
+
+  function searchData() {
+    const query = $('#searchQuery').val();
+    $.get(scriptURL + '?action=search&query=' + query, function(data) {
+      const tableBody = $('#tabelLowongan');
+      tableBody.empty();
+      data.forEach(item => {
+        tableBody.append(`
+          <tr>
+            <td>${item.Kode}</td>
+            <td>${item.Posisi}</td>
+            <td>${item.Perusahaan}</td>
+            <td>${item.Lokasi}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" onclick="editData('${item.Kode}')">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteData('${item.Kode}')">Hapus</button>
+            </td>
+          </tr>
+        `);
+      });
+    }, 'json');
+  }
+
+  function deleteData(kode) {
+    if (confirm('Yakin ingin menghapus data?')) {
+      $.get(scriptURL + '?action=delete&kode=' + kode, function(response) {
+        alert(response.result);
+        loadLowongan();
+      }, 'json');
+    }
+  }
+
+  loadLowongan();
+</script>
+</body>
+</html>
